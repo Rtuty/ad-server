@@ -40,8 +40,8 @@ func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
 
 	ctx.WriteString(fmt.Sprintf("User-Agent: %s\n", ua))
 	ctx.WriteString(fmt.Sprintf("IP: %s\n", ip))
-	ctx.WriteString(fmt.Sprintf("Browser name: %s\n Browser verison: %s\n", browserName, browserVersion))
-	ctx.WriteString(fmt.Sprintf("Country: %s\n", country))
-	ctx.WriteString(fmt.Sprintf("City: %s\n", city))
+	ctx.WriteString(fmt.Sprintf("Browser name: %s Browser verison: %s\n", browserName, browserVersion))
+	ctx.WriteString(fmt.Sprintf("Country name: %s Code: %s\n", country.Country.Names, country.Country.IsoCode))
+	ctx.WriteString(fmt.Sprintf("City name: %s Code: %s\n", city.City.Names, city.City.GeoNameID))
 
 }
