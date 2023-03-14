@@ -30,17 +30,6 @@ func (s *Server) Listen() error {
 }
 
 func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
-	// Создаем клиент MongoDB
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb:127.0.0.1:27017"))
-	if err != nil {
-		log.Fatalf("mongo db client ERROR: %s", err)
-	}
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			log.Fatalf("mongo db client defer ERROR: %s", err)
-		}
-	}()
-
 	// Собираем метрики, подключаемся к Geolite
 	ip := realip.FromRequest(ctx)
 	ua := string(ctx.Request.Header.UserAgent())
@@ -62,6 +51,20 @@ func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
 	ctx.WriteString(fmt.Sprintf("Browser name: %s Browser verison: %s\n", browserName, browserVersion))
 	ctx.WriteString(fmt.Sprintf("Country name: %s Code: %s\n", country.Country.Names, country.Country.IsoCode))
 	ctx.WriteString(fmt.Sprintf("City name: %s Code: %s\n", city.City.Names, city.City.GeoNameID))
+}
+
+func mongoDbClient(ctx *fasthttp.RequestCtx) dao.CustomerMetric {
+	// Создаем клиент MongoDB
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb:127.0.0.1:27017"))
+	if err != nil {
+		log.Fatalf("mongo db client ERROR: %s", err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(ctx); err != nil {
+			log.Fatalf("mongo db client defer ERROR: %s", err)
+		}
+	}()
 
 	//Создаем DAO структуру
 	CustomerMetric, err := dao.NewAdDAO(ctx, client)
@@ -69,4 +72,5 @@ func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
 		log.Fatalf("DAO client ERROR: %s", err)
 	}
 
+	return *CustomerMetric
 }
