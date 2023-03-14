@@ -6,6 +6,8 @@ import (
 	"github.com/mssola/user_agent"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/valyala/fasthttp"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net"
 )
@@ -15,6 +17,7 @@ type Server struct {
 }
 
 func NewServer(geoip *geoip2.Reader) *Server {
+
 	return &Server{geoip: geoip}
 }
 
@@ -23,6 +26,16 @@ func (s *Server) Listen() error {
 }
 
 func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb:127.0.0.1:27017"))
+	if err != nil {
+		log.Fatalf("mongo db client ERROR: %s", err)
+	}
+	defer func() {
+		if err := client.Disconnect(ctx); err != nil {
+			log.Fatalf("mongo db client defer ERROR: %s", err)
+		}
+	}()
+
 	ip := realip.FromRequest(ctx)
 	ua := string(ctx.Request.Header.UserAgent())
 	parsed := user_agent.New(ua)
@@ -43,5 +56,4 @@ func (s *Server) handleHttp(ctx *fasthttp.RequestCtx) {
 	ctx.WriteString(fmt.Sprintf("Browser name: %s Browser verison: %s\n", browserName, browserVersion))
 	ctx.WriteString(fmt.Sprintf("Country name: %s Code: %s\n", country.Country.Names, country.Country.IsoCode))
 	ctx.WriteString(fmt.Sprintf("City name: %s Code: %s\n", city.City.Names, city.City.GeoNameID))
-
 }
