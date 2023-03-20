@@ -2,19 +2,28 @@ package par
 
 import (
 	"encoding/json"
+	"github.com/mailru/easyjson"
+	par "modules/internal/par/DefaultBenchmark"
 	"testing"
 )
 
-var data = Response{}
+package par
+
+import (
+"encoding/json"
+"testing"
+)
+
+var data = par.Response{}
 
 func init() {
 	const n = 3
 
-	data.Bids = make([]Bid, 0, n)
+	data.Bids = make([]par.Bid, 0, n)
 
 	for i := 0; i < n; i++ {
 		data.Bids = append(data.Bids,
-			Bid{
+			par.Bid{
 				Title:     "Base title",
 				Text:      "Base test",
 				ClickUrl:  "http://example.com",
@@ -30,12 +39,12 @@ func init() {
 	}
 }
 
-func BenchmarkResponse(b *testing.B) {
+func BenchmarkResponseEasyJson(b *testing.B) {
 	var size int64
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		res, err := json.Marshal(&data)
+		res, err := easyjson.Marshal(&data)
 		if err != nil {
 			b.Error(err)
 		}
