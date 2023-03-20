@@ -6,7 +6,7 @@ type Bid struct {
 	ClickUrl  string   `json:"click_url"`
 	IconUrl   string   `json:"icon_url"`
 	ImageUrl  string   `json:"image_url"`
-	RequestId string   `json:"request_id"`
+	RequestId int      `json:"request_id"`
 	Pixels    []string `json:"pixels"`
 }
 
